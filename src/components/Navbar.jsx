@@ -6,10 +6,16 @@ import { LogOut, Menu, X } from 'lucide-react';
 export default function Navbar() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => setUser(session?.user ?? null));
+    const ADMIN_EMAIL = "shivendratripathi2876@gmail.com";
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      const u = session?.user ?? null;
+      setUser(u);
+      setIsAdmin(u?.email === ADMIN_EMAIL);
+    });
   }, []);
 
   const handleLogout = async () => {
@@ -40,7 +46,7 @@ export default function Navbar() {
         <div className={`nav-links ${isOpen ? 'active' : ''}`}>
           <Link to="/" onClick={closeMenu}>Templates</Link>
           {user && <Link to="/profile" onClick={closeMenu}>My Orders</Link>}
-          {user && <Link to="/admin" onClick={closeMenu}>Admin</Link>}
+          {isAdmin && <Link to="/admin" onClick={closeMenu}>Admin</Link>}
           
           {user ? (
             <button onClick={handleLogout} className="btn btn-outline" style={{ padding: '8px 16px' }}>

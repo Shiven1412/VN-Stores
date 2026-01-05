@@ -48,7 +48,9 @@ body {
   padding-top: 80px; /* Offset for sticky navbar */
   padding-bottom: 0;
   width: 100%;
-  background: white;
+  background: var(--bg-dark);
+  background-image: var(--bg-cosmic);
+  background-attachment: fixed;
   min-height: 100vh;
 }
 
@@ -249,40 +251,43 @@ select.input-field {
 @media (max-width: 768px) {
   .mobile-toggle {
     display: flex;
+    z-index: 110;
   }
 
+  /* Slide-in menu from the right */
   .nav-links {
     position: fixed;
     top: 80px;
     right: 0;
-    left: 0;
+    width: 280px;
     height: calc(100vh - 80px);
     background: rgba(15, 23, 42, 0.98);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     flex-direction: column;
-    gap: 20px;
-    padding: 30px 20px;
-    border-bottom: 1px solid var(--glass-border);
+    gap: 18px;
+    padding: 24px 18px;
+    border-left: 1px solid var(--glass-border);
     overflow-y: auto;
     max-height: 100vh;
-    transform: translateY(-100%);
+    transform: translateX(100%);
     opacity: 0;
     pointer-events: none;
-    transition: all 0.3s ease;
+    transition: transform 0.28s cubic-bezier(.2,.9,.2,1), opacity 0.2s ease;
+    box-shadow: -10px 30px 60px rgba(0,0,0,0.5);
   }
 
   .nav-links.active {
-    transform: translateY(0);
+    transform: translateX(0);
     opacity: 1;
     pointer-events: auto;
   }
 
   .nav-links a {
     color: var(--text-muted);
-    font-size: 1.1rem;
-    padding: 12px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 1.05rem;
+    padding: 12px 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   }
 
   .nav-links a:hover {
@@ -291,11 +296,11 @@ select.input-field {
 
   .nav-links .btn {
     width: 100%;
-    margin-top: 10px;
+    margin-top: 8px;
   }
 
-  h1 { font-size: 2rem; }
-  h2 { font-size: 1.5rem; }
+  h1 { font-size: 1.9rem; }
+  h2 { font-size: 1.4rem; }
 }
 
 /* --- 5. CAROUSEL SECTION --- */
@@ -403,6 +408,23 @@ select.input-field {
   padding-top: 120px;
   position: relative;
   z-index: 2;
+}
+
+/* Ensure card visibility on white grid background */
+.grid-section .card {
+  background: #ffffff; /* solid white for clarity */
+  border: 1px solid rgba(15,23,42,0.06);
+  color: #0f172a;
+}
+
+.grid-section .card-title {
+  color: #0f172a;
+}
+
+.grid-section .price-badge {
+  background: rgba(15,23,42,0.9);
+  color: #fff;
+  border: 1px solid rgba(0,0,0,0.06);
 }
 
 .grid-layout {
