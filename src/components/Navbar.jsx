@@ -1,12 +1,12 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
-import { ShoppingBag, LogOut, Menu, X } from 'lucide-react'; // Added Menu & X icons
+import { LogOut, Menu, X } from 'lucide-react';
 
 export default function Navbar() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [isOpen, setIsOpen] = useState(false); // New state for mobile menu
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setUser(session?.user ?? null));
@@ -14,21 +14,20 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    setIsOpen(false); // Close menu on logout
+    setIsOpen(false);
     navigate('/login');
   };
 
-  // Helper to close menu when a link is clicked
   const closeMenu = () => setIsOpen(false);
 
   return (
     <nav className="navbar">
       <div className="container nav-content">
         <Link to="/" className="logo" onClick={closeMenu}>
-          VN<span style={{ color: '#3B82F6' }}>Stores</span>
+          VN<span style={{ color: '#8b5cf6' }}>Stores</span>
         </Link>
 
-        {/* MOBILE HAMBURGER BUTTON (Visible only on mobile via CSS) */}
+        {/* Mobile Hamburger Button */}
         <button 
           className="mobile-toggle" 
           onClick={() => setIsOpen(!isOpen)}
@@ -37,8 +36,7 @@ export default function Navbar() {
           {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
 
-        {/* NAVIGATION LINKS */}
-        {/* We add the 'active' class if isOpen is true */}
+        {/* Navigation Links */}
         <div className={`nav-links ${isOpen ? 'active' : ''}`}>
           <Link to="/" onClick={closeMenu}>Templates</Link>
           {user && <Link to="/profile" onClick={closeMenu}>My Orders</Link>}

@@ -39,34 +39,64 @@ export default function Profile() {
     doc.save(`invoice_${order.id}.pdf`);
   };
 
-  if (!user) return <div className="container" style={{padding: '50px', textAlign:'center'}}>Please Login</div>;
+  if (!user) return (
+    <div className="page-wrapper">
+      <div className="container" style={{padding: '50px 20px', textAlign:'center'}}>
+        <h2>Please Login</h2>
+        <p style={{ color: 'var(--text-muted)' }}>You need to login to view your orders.</p>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="container" style={{ padding: '40px 20px' }}>
-      <h1>My Orders</h1>
-      <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        {orders.map((order) => (
-          <div key={order.id} className="card" style={{ padding: '20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', borderBottom: '1px solid #eee', paddingBottom: '10px' }}>
-              <div>
-                <strong>Order #{order.id}</strong>
-                <div style={{ fontSize: '0.8rem', color: '#666' }}>{new Date(order.created_at).toLocaleDateString()}</div>
-              </div>
-              <button onClick={() => generateInvoice(order)} className="btn btn-outline" style={{ fontSize: '0.8rem', padding: '5px 10px' }}>
-                <FileText size={14}/> Invoice
-              </button>
-            </div>
-            
-            {order.order_items.map((item, i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
-                <span>{item.templates?.title}</span>
-                <a href={item.templates?.download_link} target="_blank" style={{ color: '#3B82F6', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                  Download <Download size={14}/>
-                </a>
+    <div className="page-wrapper">
+      <div className="profile-wrapper container">
+        {/* User Profile Header */}
+        <div className="profile-header">
+          <h1>My Orders</h1>
+          <p>{user.email}</p>
+        </div>
+
+        {/* Orders List */}
+        {orders.length > 0 ? (
+          <div className="orders-grid">
+            {orders.map((order) => (
+              <div key={order.id} className="order-card">
+                <div className="order-header">
+                  <div>
+                    <strong>Order #{order.id}</strong>
+                    <div className="order-date">{new Date(order.created_at).toLocaleDateString()}</div>
+                  </div>
+                  <div style={{ color: 'var(--brand-primary)', fontWeight: '600' }}>₹{order.total_amount}</div>
+                </div>
+                
+                <div className="order-items">
+                  {order.order_items.map((item, i) => (
+                    <div key={i} className="order-item">
+                      <span>{item.templates?.title}</span>
+                      <a href={item.templates?.download_link} target="_blank" rel="noopener noreferrer">
+                        Download <Download size={14}/>
+                      </a>
+                    </div>
+                  ))}
+                </div>
+
+                <button 
+                  onClick={() => generateInvoice(order)} 
+                  className="btn btn-outline" 
+                  style={{ marginTop: '15px', width: '100%', fontSize: '0.9rem' }}
+                >
+                  <FileText size={14}/> Download Invoice
+                </button>
               </div>
             ))}
           </div>
-        ))}
+        ) : (
+          <div className="order-card" style={{ textAlign: 'center', padding: '40px 20px' }}>
+            <p style={{ fontSize: '1.1rem' }}>No orders yet</p>
+            <p style={{ color: 'var(--text-muted)', marginTop: '10px' }}>Start exploring templates to make your first purchase!</p>
+          </div>
+        )}
       </div>
     </div>
   );
