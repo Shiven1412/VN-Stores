@@ -1,7 +1,20 @@
+import { useEffect, useState } from 'react';
+import { supabase } from '../supabaseClient';
 import { Instagram, Youtube, Mail, MapPin, Phone, Linkedin } from 'lucide-react';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(Boolean(session?.user));
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(Boolean(session?.user));
+    });
+    return () => listener?.subscription?.unsubscribe?.();
+  }, []);
 
   return (
     <footer className="footer">
@@ -58,7 +71,7 @@ export default function Footer() {
             <h4>Quick Links</h4>
             <a href="/">Templates</a>
             <a href="/profile">My Orders</a>
-            <a href="/login">Login</a>
+            {!isLoggedIn && <a href="/login">Login</a>}
             <a href="#">Browse Collections</a>
             <a href="#">Trending Now</a>
             <a href="#">New Arrivals</a>

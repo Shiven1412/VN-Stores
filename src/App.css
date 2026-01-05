@@ -27,6 +27,11 @@ html, body, #root {
   height: 100%;
 }
 
+/* Prevent horizontal overflow on mobile (removes extra black region when zoomed out) */
+html, body {
+  overflow-x: hidden;
+}
+
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background: var(--bg-dark);
@@ -642,6 +647,26 @@ select.input-field {
   border-color: var(--brand-primary);
 }
 
+/* Make close button more visible on small screens */
+@media (max-width: 480px) {
+  .modal-content {
+    width: 95vw;
+    max-width: 95vw;
+    height: 56vh;
+    max-height: 56vh;
+    border-radius: 16px;
+  }
+
+  .video-frame { height: 100%; }
+
+  .close-btn {
+    background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary));
+    color: #fff;
+    border: none;
+    box-shadow: 0 6px 18px rgba(139,92,246,0.25);
+  }
+}
+
 .modal-footer {
   padding: 20px; 
   background: linear-gradient(to top, #000, rgba(0,0,0,0.8));
@@ -893,6 +918,17 @@ img {
   color: white;
   box-shadow: var(--brand-glow);
   transform: translateY(-3px);
+}
+
+/* Ensure icons are square and centered on small screens */
+.social-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+@media (max-width: 480px) {
+  .social-icon { width: 40px; height: 40px; }
+  .social-icon svg { width: 16px; height: 16px; }
 }
 
 .footer-divider {
