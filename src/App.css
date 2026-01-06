@@ -603,9 +603,9 @@ select.input-field {
 
 .modal-content {
   width: 90%; 
-  max-width: 500px; 
-  height: 85vh;
-  max-height: 600px;
+  max-width: 600px;
+  height: auto;
+  max-height: 90vh;
   background: #000;
   border-radius: var(--radius-lg);
   border: 1px solid var(--glass-border);
@@ -615,6 +615,7 @@ select.input-field {
   overflow: hidden;
   position: relative;
   animation: slideUp 0.3s ease;
+  aspect-ratio: 9/16;
 }
 
 .video-frame {

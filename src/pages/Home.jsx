@@ -4,6 +4,7 @@ import { Play, X, Download, ShoppingCart, Star, Users, TrendingUp } from 'lucide
 
 export default function Home() {
   const [templates, setTemplates] = useState([]);
+  const [carousels, setCarousels] = useState([]);
   const [selectedVideo, setSelectedVideo] = useState(null);
   
   // Pagination & Filtering State
@@ -14,11 +15,17 @@ export default function Home() {
 
   useEffect(() => {
     fetchTemplates();
+    fetchCarousels();
   }, []);
 
   const fetchTemplates = async () => {
     const { data } = await supabase.from('templates').select('*').order('created_at', { ascending: false });
     setTemplates(data || []);
+  };
+
+  const fetchCarousels = async () => {
+    const { data } = await supabase.from('carousels').select('*').eq('active', true).order('position', { ascending: true });
+    setCarousels(data || []);
   };
 
   const handleShowMore = () => {
@@ -92,24 +99,45 @@ export default function Home() {
       <div className="carousel-and-categories">
         <div className="container carousel-section">
         <div className="carousel-container">
-          {/* Carousel Item 1 */}
-          <div className="carousel-item" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1533134486753-c833f0ed4866?q=80&w=2070&auto=format&fit=crop)', backgroundSize: 'cover' }}>
-            <div className="carousel-overlay"></div>
-            <div className="carousel-text">
-              <span className="category-pill" style={{background: 'var(--brand-primary)', border:'none', marginBottom:'10px'}}>New Arrival</span>
-              <h1>Cinematic Pack Vol. 1</h1>
-              <p>Elevate your travel vlogs instantly.</p>
-            </div>
-          </div>
-          {/* Carousel Item 2 */}
-          <div className="carousel-item" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1964&auto=format&fit=crop)', backgroundSize: 'cover' }}>
-            <div className="carousel-overlay"></div>
-            <div className="carousel-text">
-               <span className="category-pill" style={{background: 'var(--brand-secondary)', border:'none', marginBottom:'10px'}}>Trending</span>
-              <h1>Neon Glitch Effects</h1>
-              <p>Perfect for cyberpunk aesthetic reels.</p>
-            </div>
-          </div>
+          {carousels.length > 0 ? (
+            carousels.map((carousel) => (
+              <div 
+                key={carousel.id}
+                className="carousel-item" 
+                style={{ backgroundImage: `url(${carousel.image_url})`, backgroundSize: 'cover' }}
+                onClick={() => setActiveCategory(carousel.destination_category)}
+                role="button"
+                tabIndex={0}
+              >
+                <div className="carousel-overlay"></div>
+                <div className="carousel-text">
+                  <span className="category-pill" style={{background: 'var(--brand-secondary)', border:'none', marginBottom:'10px'}}>{carousel.destination_category}</span>
+                  <h1>{carousel.name}</h1>
+                  <p>Click to explore</p>
+                </div>
+              </div>
+            ))
+          ) : (
+            <>
+              {/* Fallback carousel items if none in DB */}
+              <div className="carousel-item" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1533134486753-c833f0ed4866?q=80&w=2070&auto=format&fit=crop)', backgroundSize: 'cover' }}>
+                <div className="carousel-overlay"></div>
+                <div className="carousel-text">
+                  <span className="category-pill" style={{background: 'var(--brand-primary)', border:'none', marginBottom:'10px'}}>New Arrival</span>
+                  <h1>Cinematic Pack Vol. 1</h1>
+                  <p>Elevate your travel vlogs instantly.</p>
+                </div>
+              </div>
+              <div className="carousel-item" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1964&auto=format&fit=crop)', backgroundSize: 'cover' }}>
+                <div className="carousel-overlay"></div>
+                <div className="carousel-text">
+                   <span className="category-pill" style={{background: 'var(--brand-secondary)', border:'none', marginBottom:'10px'}}>Trending</span>
+                  <h1>Neon Glitch Effects</h1>
+                  <p>Perfect for cyberpunk aesthetic reels.</p>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
