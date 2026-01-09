@@ -176,10 +176,18 @@ export default function Home() {
                   className="thumbnail-img" alt={t.title}
                 />
                 <div className="play-icon"><Play size={24} fill="white" stroke="none" /></div>
-                <div className="price-badge">{t.price === 0 ? "FREE" : `₹${t.price}`}</div>
+                <div className="price-badge">
+                  {t.discounted_price ? `₹${t.discounted_price}` : t.price === 0 ? "FREE" : `₹${t.price}`}
+                </div>
               </div>
               <div className="card-body">
                 <h3 className="card-title">{t.title}</h3>
+                {t.original_price && (
+                  <div style={{ marginBottom: '8px' }}>
+                    <span style={{ textDecoration: 'line-through', color: 'var(--text-muted)', fontSize: '0.85rem', marginRight: '8px' }}>₹{t.original_price}</span>
+                    <span style={{ color: 'var(--brand-secondary)', fontWeight: 'bold' }}>₹{t.discounted_price}</span>
+                  </div>
+                )}
                 <button onClick={() => handleBuy(t)} className="btn btn-primary" style={{ width: '100%', borderRadius: '12px' }}>
                   {t.price === 0 ? <Download size={18}/> : <ShoppingCart size={18}/>}
                   {t.price === 0 ? "Download" : "Buy Now"}

@@ -20,6 +20,8 @@ export default function Admin() {
     name: '',
     imageFile: null,
     imageUrl: '',
+    qrFile: null,
+    qrUrl: '',
     destinationCategory: ''
   });
   const [showCarouselForm, setShowCarouselForm] = useState(false);
@@ -100,6 +102,7 @@ export default function Admin() {
     }
 
     let imageUrl = carouselForm.imageUrl;
+    let qrUrl = carouselForm.qrUrl;
 
     // Upload image to Supabase Storage if a new file is selected
     if (carouselForm.imageFile) {
@@ -120,11 +123,31 @@ export default function Admin() {
       }
     }
 
+    // Upload QR code if a new file is selected
+    if (carouselForm.qrFile) {
+      try {
+        const timestamp = Date.now();
+        const qrFilename = `qr-code-${timestamp}-${carouselForm.qrFile.name}`;
+        const { error: qrUploadError } = await supabase.storage
+          .from('qr-codes')
+          .upload(qrFilename, carouselForm.qrFile, { upsert: false });
+        
+        if (qrUploadError) throw qrUploadError;
+        
+        const { data: qrUrlData } = supabase.storage.from('qr-codes').getPublicUrl(qrFilename);
+        qrUrl = qrUrlData.publicUrl;
+      } catch (err) {
+        console.error('QR Code upload error', err);
+        return alert('QR Code upload failed: ' + (err.message || String(err)));
+      }
+    }
+
     if (carouselForm.id) {
       // Edit existing carousel
       const { error } = await supabase.from('carousels').update({
         name: carouselForm.name,
         image_url: imageUrl,
+        qr_url: qrUrl,
         destination_category: carouselForm.destinationCategory
       }).eq('id', carouselForm.id);
 
@@ -140,6 +163,7 @@ export default function Admin() {
       const { error } = await supabase.from('carousels').insert([{
         name: carouselForm.name,
         image_url: imageUrl,
+        qr_url: qrUrl,
         destination_category: carouselForm.destinationCategory
       }]);
 
@@ -158,6 +182,7 @@ export default function Admin() {
       id: carousel.id,
       name: carousel.name,
       imageUrl: carousel.image_url,
+      qrUrl: carousel.qr_url,
       destinationCategory: carousel.destination_category
     });
     setShowCarouselForm(true);
@@ -176,6 +201,8 @@ export default function Admin() {
       name: '',
       imageFile: null,
       imageUrl: '',
+      qrFile: null,
+      qrUrl: '',
       destinationCategory: ''
     });
     setShowCarouselForm(false);
@@ -331,6 +358,18 @@ export default function Admin() {
               />
               {carouselForm.imageUrl && <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '8px' }}>Current: {carouselForm.imageUrl}</p>}
             </div>
+
+            <div>
+              <label style={{ color: 'white', marginBottom: '8px', display: 'block', fontWeight: '500' }}>QR Code (Optional)</label>
+              <input 
+                type="file" 
+                accept="image/*"
+                className="input-field"
+                onChange={e => setCarouselForm({...carouselForm, qrFile: e.target.files[0]})}
+              />
+              {carouselForm.qrUrl && <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '8px' }}>Current QR: <a href={carouselForm.qrUrl} target="_blank" rel="noreferrer">View</a></p>}
+            </div>
+
             <select 
               className="input-field"
               value={carouselForm.destinationCategory} 
