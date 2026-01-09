@@ -28,6 +28,12 @@ export default function Navbar() {
 
   const closeMenu = () => setIsOpen(false);
 
+  const handleTemplateClick = (category) => {
+    closeMenu();
+    setDropdownOpen(false);
+    navigate(`/?category=${category}`);
+  };
+
   return (
     <nav className="navbar">
       <div className="container nav-content">
@@ -51,8 +57,13 @@ export default function Navbar() {
               Templates
             </button>
             <div className={`dropdown-menu ${dropdownOpen ? 'active' : ''}`}>
-              <Link to="/templates/reels" onClick={() => { closeMenu(); setDropdownOpen(false); }}>Reel Templates</Link>
-              <Link to="/templates/posts" onClick={() => { closeMenu(); setDropdownOpen(false); }}>Post Templates</Link>
+              <button onClick={() => handleTemplateClick('All')} style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: '10px 16px', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '0.95rem' }}>All Templates</button>
+              <button onClick={() => handleTemplateClick('Reels')} style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: '10px 16px', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '0.95rem' }}>Reels</button>
+              <button onClick={() => handleTemplateClick('Posts')} style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: '10px 16px', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '0.95rem' }}>Posts</button>
+              <button onClick={() => handleTemplateClick('Wedding')} style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: '10px 16px', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '0.95rem' }}>Wedding</button>
+              <button onClick={() => handleTemplateClick('Festival')} style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: '10px 16px', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '0.95rem' }}>Festival</button>
+              <button onClick={() => handleTemplateClick('Trending')} style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: '10px 16px', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '0.95rem' }}>Trending</button>
+              <button onClick={() => handleTemplateClick('Romantic')} style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: '10px 16px', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '0.95rem' }}>Romantic</button>
             </div>
           </div>
           {user && <Link to="/profile" onClick={closeMenu}>My Orders</Link>}

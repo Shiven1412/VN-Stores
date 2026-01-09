@@ -778,6 +778,23 @@ select.input-field {
   margin-top: 15px;
 }
 
+/* Ensure form inputs don't overflow on mobile */
+@media (max-width: 768px) {
+  .admin-form {
+    gap: 12px;
+  }
+
+  .input-field {
+    padding: 12px;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  /* Fix grid columns for price inputs on mobile */
+  .admin-form > div[style*="grid-template-columns"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 .table-wrapper {
   overflow-x: auto;
   border-radius: var(--radius-md);

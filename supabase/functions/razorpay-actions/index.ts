@@ -65,11 +65,12 @@ serve(async (req) => {
         throw new Error("Invalid Signature: Payment verification failed");
       }
 
-      // C. Save to Database
+      // C. Save to Database (include template_id for sales tracking)
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert([{ 
           user_id, 
+          template_id,
           total_amount: amount, 
           status: 'paid', 
           payment_id: razorpay_payment_id 
@@ -78,10 +79,6 @@ serve(async (req) => {
         .single();
 
       if (orderError) throw new Error("DB Error: " + orderError.message);
-
-      await supabase.from('order_items').insert([
-        { order_id: order.id, template_id, price_at_purchase: amount }
-      ]);
 
       return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
     }

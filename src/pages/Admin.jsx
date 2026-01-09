@@ -331,7 +331,8 @@ export default function Admin() {
                 ))}
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            {/* Price Section - Grid for desktop, stacked on mobile */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
               <input 
                 type="number" placeholder="Original Price" className="input-field"
                 value={form.originalPrice} onChange={e => setForm({...form, originalPrice: e.target.value})}
@@ -407,25 +408,25 @@ export default function Admin() {
         </div>
 
         {showCarouselForm && (
-          <form onSubmit={handleCarouselSubmit} className="admin-form" style={{ marginBottom: '30px', paddingBottom: '30px', borderBottom: '1px solid var(--glass-border)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h3 style={{ margin: 0 }}>{carouselForm.id ? 'Edit Carousel Item' : 'Add New Carousel Item'}</h3>
+          <form onSubmit={handleCarouselSubmit} className="admin-form" style={{ marginBottom: '30px', paddingBottom: '30px', borderBottom: '1px solid var(--glass-border)', backgroundColor: 'rgba(0,0,0,0.2)', padding: '20px', borderRadius: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', gap: '10px' }}>
+              <h3 style={{ margin: 0, fontSize: 'clamp(1rem, 5vw, 1.2rem)' }}>{carouselForm.id ? 'Edit Item' : 'Add Item'}</h3>
               <button 
                 type="button"
                 onClick={resetCarouselForm}
-                style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: '1.5rem' }}
+                style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', padding: '4px', flexShrink: 0 }}
               >
-                <X size={24} />
+                <X size={20} />
               </button>
             </div>
             <input 
-              placeholder="Carousel Item Name" 
+              placeholder="Name" 
               className="input-field"
               value={carouselForm.name} 
               onChange={e => setCarouselForm({...carouselForm, name: e.target.value})}
             />
             <div>
-              <label style={{ color: 'white', marginBottom: '8px', display: 'block', fontWeight: '500' }}>Upload Image</label>
+              <label style={{ color: 'white', marginBottom: '6px', display: 'block', fontWeight: '500', fontSize: '0.9rem' }}>Image</label>
               <input 
                 type="file" 
                 accept="image/*"
@@ -436,14 +437,14 @@ export default function Admin() {
             </div>
 
             <div>
-              <label style={{ color: 'white', marginBottom: '8px', display: 'block', fontWeight: '500' }}>QR Code (Optional)</label>
+              <label style={{ color: 'white', marginBottom: '6px', display: 'block', fontWeight: '500', fontSize: '0.9rem' }}>QR (Optional)</label>
               <input 
                 type="file" 
                 accept="image/*"
                 className="input-field"
                 onChange={e => setCarouselForm({...carouselForm, qrFile: e.target.files[0]})}
               />
-              {carouselForm.qrUrl && <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '8px' }}>Current QR: <a href={carouselForm.qrUrl} target="_blank" rel="noreferrer">View</a></p>}
+              {carouselForm.qrUrl && <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '6px' }}><a href={carouselForm.qrUrl} target="_blank" rel="noreferrer">View QR</a></p>}
             </div>
 
             <select 
@@ -451,7 +452,7 @@ export default function Admin() {
               value={carouselForm.destinationCategory} 
               onChange={e => setCarouselForm({...carouselForm, destinationCategory: e.target.value})}
             >
-              <option value="">Select Destination Category</option>
+              <option value="">Category</option>
               {categoryOptions.map(cat => (
                 <option key={cat} value={cat}>{cat}</option>
               ))}

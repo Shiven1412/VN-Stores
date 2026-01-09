@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { Play, X, Download, ShoppingCart, Star, Users, TrendingUp } from 'lucide-react';
 import PlyrWrapper from '../components/PlyrWrapper';
 import QrDownload from '../components/QrDownload';
 
 export default function Home() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [templates, setTemplates] = useState([]);
   const [carousels, setCarousels] = useState([]);
   const [selectedVideo, setSelectedVideo] = useState(null);
@@ -12,7 +14,9 @@ export default function Home() {
   
   // Pagination & Filtering State
   const [visibleCount, setVisibleCount] = useState(8);
-  const [activeCategory, setActiveCategory] = useState("All");
+  
+  // Read category from URL params, default to "All"
+  const [activeCategory, setActiveCategory] = useState(searchParams.get('category') || "All");
 
   const categories = ["All", "Wedding", "Festival", "Trending", "Reels", "Posts", "Romantic"];
 
