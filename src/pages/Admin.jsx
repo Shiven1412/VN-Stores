@@ -8,6 +8,8 @@ export default function Admin() {
   const [form, setForm] = useState({ 
     title: '', 
     youtubeId: '', 
+    originalPrice: '',
+    discountedPrice: '',
     price: '', 
     link: '', 
     category: '',
@@ -16,6 +18,7 @@ export default function Admin() {
   const [carouselForm, setCarouselForm] = useState({
     id: null,
     name: '',
+    imageFile: null,
     imageUrl: '',
     destinationCategory: ''
   });
@@ -65,6 +68,8 @@ export default function Admin() {
     const { error } = await supabase.from('templates').insert([{
       title: form.title,
       youtube_video_id: form.youtubeId,
+      original_price: form.originalPrice ? parseFloat(form.originalPrice) : null,
+      discounted_price: form.discountedPrice ? parseFloat(form.discountedPrice) : null,
       price: parseFloat(form.price) || 0,
       download_link: form.link,
       category: form.category,
@@ -73,7 +78,7 @@ export default function Admin() {
 
     if (!error) {
       alert("Added!");
-      setForm({ title: '', youtubeId: '', price: '', link: '', category: '', carouselTags: [] });
+      setForm({ title: '', youtubeId: '', originalPrice: '', discountedPrice: '', price: '', link: '', category: '', carouselTags: [] });
       fetchTemplates();
     } else {
       alert(error.message);
@@ -90,15 +95,36 @@ export default function Admin() {
   // Carousel Handlers
   const handleCarouselSubmit = async (e) => {
     e.preventDefault();
-    if (!carouselForm.name || !carouselForm.imageUrl || !carouselForm.destinationCategory) {
-      return alert("Fill all carousel fields");
+    if (!carouselForm.name || !carouselForm.destinationCategory) {
+      return alert("Fill all carousel fields (name, image, category)");
+    }
+
+    let imageUrl = carouselForm.imageUrl;
+
+    // Upload image to Supabase Storage if a new file is selected
+    if (carouselForm.imageFile) {
+      try {
+        const timestamp = Date.now();
+        const filename = `carousel-${timestamp}-${carouselForm.imageFile.name}`;
+        const { error: uploadError } = await supabase.storage
+          .from('carousel-images')
+          .upload(filename, carouselForm.imageFile, { upsert: false });
+        
+        if (uploadError) throw uploadError;
+        
+        const { data: urlData } = supabase.storage.from('carousel-images').getPublicUrl(filename);
+        imageUrl = urlData.publicUrl;
+      } catch (err) {
+        console.error('Image upload error', err);
+        return alert('Image upload failed: ' + (err.message || String(err)));
+      }
     }
 
     if (carouselForm.id) {
       // Edit existing carousel
       const { error } = await supabase.from('carousels').update({
         name: carouselForm.name,
-        image_url: carouselForm.imageUrl,
+        image_url: imageUrl,
         destination_category: carouselForm.destinationCategory
       }).eq('id', carouselForm.id);
 
@@ -113,7 +139,7 @@ export default function Admin() {
       // Add new carousel
       const { error } = await supabase.from('carousels').insert([{
         name: carouselForm.name,
-        image_url: carouselForm.imageUrl,
+        image_url: imageUrl,
         destination_category: carouselForm.destinationCategory
       }]);
 
@@ -148,6 +174,7 @@ export default function Admin() {
     setCarouselForm({
       id: null,
       name: '',
+      imageFile: null,
       imageUrl: '',
       destinationCategory: ''
     });
@@ -294,12 +321,16 @@ export default function Admin() {
               value={carouselForm.name} 
               onChange={e => setCarouselForm({...carouselForm, name: e.target.value})}
             />
-            <input 
-              placeholder="Image URL" 
-              className="input-field"
-              value={carouselForm.imageUrl} 
-              onChange={e => setCarouselForm({...carouselForm, imageUrl: e.target.value})}
-            />
+            <div>
+              <label style={{ color: 'white', marginBottom: '8px', display: 'block', fontWeight: '500' }}>Upload Image</label>
+              <input 
+                type="file" 
+                accept="image/*"
+                className="input-field"
+                onChange={e => setCarouselForm({...carouselForm, imageFile: e.target.files[0]})}
+              />
+              {carouselForm.imageUrl && <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '8px' }}>Current: {carouselForm.imageUrl}</p>}
+            </div>
             <select 
               className="input-field"
               value={carouselForm.destinationCategory} 

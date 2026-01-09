@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { Play, X, Download, ShoppingCart, Star, Users, TrendingUp } from 'lucide-react';
+import PlyrWrapper from '../components/PlyrWrapper';
+import QrDownload from '../components/QrDownload';
 
 export default function Home() {
   const [templates, setTemplates] = useState([]);
   const [carousels, setCarousels] = useState([]);
   const [selectedVideo, setSelectedVideo] = useState(null);
+  const [purchaseQr, setPurchaseQr] = useState(null);
   
   // Pagination & Filtering State
   const [visibleCount, setVisibleCount] = useState(8);
@@ -72,8 +75,11 @@ export default function Home() {
 
           if (verifyError || !verifyData.success) alert("Verification Failed");
           else {
-            alert("Payment Successful!");
-            setSelectedVideo(null);
+            // Payment succeeded — prepare QR content (order id or payment id)
+            const qrValue = verifyData.order_id || orderData.id || response.razorpay_payment_id || Date.now().toString();
+            setPurchaseQr(qrValue);
+            // keep modal open to show QR to buyer; clear selected video if you prefer
+            // setSelectedVideo(null);
           }
         },
         prefill: { email: user.email },
@@ -220,13 +226,9 @@ export default function Home() {
             <button className="close-btn" onClick={() => setSelectedVideo(null)}>
               <X size={20} />
             </button>
-            <iframe
-              className="video-frame"
-              style={{ flexGrow: 1, width: '100%', height: '100%', border: 'none' }}
-              src={`https://www.youtube.com/embed/${selectedVideo.youtube_video_id}?autoplay=1&controls=1&loop=1&rel=0`}
-              allow="autoplay; encrypted-media"
-              allowFullScreen
-            ></iframe>
+            <div style={{ flexGrow: 1, width: '100%', height: '100%' }}>
+              <PlyrWrapper videoId={selectedVideo.youtube_video_id} />
+            </div>
             <div className="modal-footer">
               <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'15px'}}>
                  <h3 style={{ fontSize:'1.1rem', margin:0 }}>{selectedVideo.title}</h3>
@@ -235,6 +237,22 @@ export default function Home() {
               <button onClick={() => handleBuy(selectedVideo)} className="btn btn-primary" style={{ width: '100%' }}>
                 {selectedVideo.price === 0 ? "Download Now" : "Unlock Template"}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Purchase QR Modal */}
+      {purchaseQr && (
+        <div className="modal-overlay" onClick={() => setPurchaseQr(null)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 420 }}>
+            <button className="close-btn" onClick={() => setPurchaseQr(null)}>
+              <X size={20} />
+            </button>
+            <div style={{ padding: 24 }}>
+              <h2 style={{ marginBottom: 12 }}>Download Your QR Code</h2>
+              <p style={{ color: 'var(--text-muted)', marginBottom: 16 }}>Save this QR and share with creators to grant access.</p>
+              <QrDownload value={purchaseQr} fileName={`vn-qr-${purchaseQr}.png`} />
             </div>
           </div>
         </div>

@@ -2,12 +2,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { LogOut, Menu, X } from 'lucide-react';
+import Logo from '../assets/logo.svg';
 
 export default function Navbar() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
     const ADMIN_EMAIL = "shivendratripathi2876@gmail.com";
@@ -30,7 +32,7 @@ export default function Navbar() {
     <nav className="navbar">
       <div className="container nav-content">
         <Link to="/" className="logo" onClick={closeMenu}>
-          VN<span style={{ color: '#8b5cf6' }}>Stores</span>
+          <img src={Logo} alt="VN Stores" style={{ height: 36 }} />
         </Link>
 
         {/* Mobile Hamburger Button */}
@@ -44,7 +46,15 @@ export default function Navbar() {
 
         {/* Navigation Links */}
         <div className={`nav-links ${isOpen ? 'active' : ''}`}>
-          <Link to="/" onClick={closeMenu}>Templates</Link>
+          <div className="templates-dropdown" style={{ position: 'relative' }}>
+            <button className="dropdown-toggle" onClick={() => setDropdownOpen(!dropdownOpen)}>
+              Templates
+            </button>
+            <div className={`dropdown-menu ${dropdownOpen ? 'active' : ''}`}>
+              <Link to="/templates/reels" onClick={() => { closeMenu(); setDropdownOpen(false); }}>Reel Templates</Link>
+              <Link to="/templates/posts" onClick={() => { closeMenu(); setDropdownOpen(false); }}>Post Templates</Link>
+            </div>
+          </div>
           {user && <Link to="/profile" onClick={closeMenu}>My Orders</Link>}
           {isAdmin && <Link to="/admin" onClick={closeMenu}>Admin</Link>}
           
