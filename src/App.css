@@ -714,18 +714,35 @@ select.input-field {
   .modal-content {
     width: 95vw;
     max-width: 95vw;
-    height: 56vh;
-    max-height: 56vh;
+    height: auto;
+    max-height: 80vh;
     border-radius: 16px;
+    aspect-ratio: 9/16;
   }
 
-  .video-frame { height: 100%; }
+  .video-frame { 
+    height: 100%;
+    min-height: 400px;
+  }
 
   .close-btn {
     background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary));
     color: #fff;
     border: none;
     box-shadow: 0 6px 18px rgba(139,92,246,0.25);
+  }
+}
+
+/* Improve mobile phone responsiveness for video modal */
+@media (max-width: 600px) and (orientation: portrait) {
+  .modal-content {
+    max-height: 75vh;
+  }
+}
+
+@media (max-width: 600px) and (orientation: landscape) {
+  .modal-content {
+    height: 90vh;
   }
 }
 

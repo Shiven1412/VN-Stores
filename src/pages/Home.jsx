@@ -94,6 +94,20 @@ export default function Home() {
     }
   };
 
+  // Category Mapping: Define subcategories for each template type
+  const categoryMap = {
+    "All": ["All", "Wedding", "Festival", "Trending", "Reels", "Posts", "Romantic"],
+    "Reels": ["Cinematic", "Neon", "Wedding", "Festival", "Trending", "Shorty"],
+    "Posts": ["Quote", "Carousel", "Minimalist", "VFX", "Typography", "Transition"],
+    "Wedding": ["Cinematic", "Traditional", "Drone", "Highlight", "Teaser", "Album"],
+    "Festival": ["Holi", "Diwali", "Christmas", "NewYear", "Cultural", "Music"],
+    "Trending": ["Trending", "Viral", "Challenge", "Meme", "Audio-Sync", "Transition"],
+    "Romantic": ["Love Story", "Couple", "Proposal", "Anniversary", "Duet", "Emotional"]
+  };
+
+  // Get available subcategories based on active category
+  const availableSubcategories = categoryMap[activeCategory] || categoryMap["All"];
+
   // Filter Logic (Now uses actual category from Supabase)
   const filteredTemplates = activeCategory === "All" 
     ? templates 
@@ -147,7 +161,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* --- 2. CATEGORIES BAR --- */}
+      {/* --- 2. CATEGORIES BAR WITH DYNAMIC SUBCATEGORIES --- */}
       <div className="container">
         <div className="categories-bar">
           {categories.map(cat => (
@@ -160,6 +174,27 @@ export default function Home() {
             </button>
           ))}
         </div>
+        
+        {/* Subcategories (shown when a main category is selected) */}
+        {activeCategory !== "All" && availableSubcategories.length > 0 && (
+          <div style={{ marginTop: '20px', paddingBottom: '20px', borderBottom: '1px solid var(--glass-border)' }}>
+            <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '12px' }}>Subcategories for <strong>{activeCategory}</strong>:</p>
+            <div className="categories-bar">
+              {availableSubcategories.filter(cat => cat !== activeCategory).map((subcat) => (
+                <button
+                  key={subcat}
+                  className="category-pill"
+                  style={{ fontSize: '0.85rem', padding: '8px 16px', opacity: 0.7 }}
+                  onClick={() => {
+                    // Optional: could add a sublevel filter here if needed
+                  }}
+                >
+                  {subcat}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
       </div>
 

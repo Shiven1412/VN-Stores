@@ -14,6 +14,7 @@ export default function Admin() {
     qrFile: null,
     qrUrl: '',
     category: '',
+    subcategory: '',
     carouselTags: []
   });
   const [carouselForm, setCarouselForm] = useState({
@@ -31,8 +32,18 @@ export default function Admin() {
   // Admin Email
   const ADMIN_EMAIL = "shivendratripathi2876@gmail.com"; 
 
-  // Category Options
+  // Category options (main types)
   const categoryOptions = ["Wedding", "Festival", "Trending", "Reels", "Posts", "Romantic"];
+  
+  // Subcategory mapping for each main category
+  const subcategoryMap = {
+    "Reels": ["Cinematic", "Neon", "Wedding", "Festival", "Trending", "Shorty"],
+    "Posts": ["Quote", "Carousel", "Minimalist", "VFX", "Typography", "Transition"],
+    "Wedding": ["Cinematic", "Traditional", "Drone", "Highlight", "Teaser", "Album"],
+    "Festival": ["Holi", "Diwali", "Christmas", "NewYear", "Cultural", "Music"],
+    "Trending": ["Trending", "Viral", "Challenge", "Meme", "Audio-Sync", "Transition"],
+    "Romantic": ["Love Story", "Couple", "Proposal", "Anniversary", "Duet", "Emotional"]
+  };
   
   // Carousel Tag Options
   const carouselTagOptions = ["Cinematic", "Neon", "Wedding", "Festival", "Trending", "Reels"]; 
@@ -56,7 +67,19 @@ export default function Admin() {
 
   const fetchTemplates = async () => {
     const { data } = await supabase.from('templates').select('*').order('created_at', { ascending: false });
-    setTemplates(data || []);
+    
+    // Fetch sales count for each template
+    if (data) {
+      const templatesWithSales = await Promise.all(
+        data.map(async (template) => {
+          const { count } = await supabase.from('orders').select('id', { count: 'exact' }).eq('template_id', template.id);
+          return { ...template, sales_count: count || 0 };
+        })
+      );
+      setTemplates(templatesWithSales);
+    } else {
+      setTemplates([]);
+    }
   };
 
   const fetchCarousels = async () => {
@@ -262,13 +285,26 @@ export default function Admin() {
             <select 
               className="input-field"
               value={form.category} 
-              onChange={e => setForm({...form, category: e.target.value})}
+              onChange={e => setForm({...form, category: e.target.value, subcategory: ''})}
             >
               <option value="">Select Category</option>
               {categoryOptions.map(cat => (
                 <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>
+            
+            {form.category && subcategoryMap[form.category] && (
+              <select 
+                className="input-field"
+                value={form.subcategory || ''} 
+                onChange={e => setForm({...form, subcategory: e.target.value})}
+              >
+                <option value="">Select Subcategory (Optional)</option>
+                {subcategoryMap[form.category].map(subcat => (
+                  <option key={subcat} value={subcat}>{subcat}</option>
+                ))}
+              </select>
+            )}
 
             {/* Carousel Tags */}
             <div>
@@ -331,6 +367,7 @@ export default function Admin() {
               <th>Preview</th>
               <th>Title</th>
               <th>Price</th>
+              <th>Sales</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -342,6 +379,7 @@ export default function Admin() {
                 </td>
                 <td>{t.title}</td>
                 <td>{t.price === 0 ? "Free" : `₹${t.price}`}</td>
+                <td><strong style={{ color: 'var(--brand-primary)', fontSize: '1.1rem' }}>{t.sales_count || 0}</strong></td>
                 <td>
                   <button onClick={() => handleDelete(t.id)} className="btn btn-danger" style={{ padding: '8px' }}>
                     <Trash2 size={16} />
@@ -449,22 +487,23 @@ export default function Admin() {
                 <p style={{ margin: '0 0 10px 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
                   → {carousel.destination_category}
                 </p>
-                <div style={{ display: 'flex', gap: '8px', marginTop: 'auto' }}>
-                  <button 
-                    onClick={() => handleEditCarousel(carousel)}
-                    className="btn btn-outline"
-                    style={{ flex: 1, padding: '8px', fontSize: '0.85rem' }}
-                  >
-                    <Edit2 size={14} />
-                  </button>
-                  <button 
-                    onClick={() => handleDeleteCarousel(carousel.id)}
-                    className="btn btn-danger"
-                    style={{ flex: 1, padding: '8px', fontSize: '0.85rem' }}
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </div>
+              </div>
+              {/* Buttons positioned below image and text */}
+              <div style={{ display: 'flex', gap: '8px', padding: '0 15px 15px 15px' }}>
+                <button 
+                  onClick={() => handleEditCarousel(carousel)}
+                  className="btn btn-outline"
+                  style={{ flex: 1, padding: '8px', fontSize: '0.85rem' }}
+                >
+                  <Edit2 size={14} />
+                </button>
+                <button 
+                  onClick={() => handleDeleteCarousel(carousel.id)}
+                  className="btn btn-danger"
+                  style={{ flex: 1, padding: '8px', fontSize: '0.85rem' }}
+                >
+                  <Trash2 size={14} />
+                </button>
               </div>
             </div>
           ))}
