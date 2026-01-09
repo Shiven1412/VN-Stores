@@ -1,0 +1,99 @@
+/** ADMIN.JSX UPDATES - Copy and apply these sections **/
+
+// 1. UPDATE FORM STATE (lines 8-17):
+const [form, setForm] = useState({ 
+  title: '', 
+  youtubeId: '', 
+  originalPrice: '',
+  discountedPrice: '',
+  price: '', 
+  qrFile: null,
+  qrUrl: '',
+  category: '',
+  carouselTags: []
+});
+
+// 2. UPDATE handleSubmit (lines 60-82):
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!form.youtubeId || !form.title || !form.category) return alert("Fill all required fields");
+
+  let qrUrl = form.qrUrl;
+
+  // Upload QR code if provided
+  if (form.qrFile) {
+    try {
+      const timestamp = Date.now();
+      const qrFilename = `template-qr-${timestamp}-${form.qrFile.name}`;
+      const { error: qrUploadError } = await supabase.storage
+        .from('qrcodes')
+        .upload(qrFilename, form.qrFile, { upsert: false });
+      
+      if (qrUploadError) throw qrUploadError;
+      
+      const { data: qrUrlData } = supabase.storage.from('qrcodes').getPublicUrl(qrFilename);
+      qrUrl = qrUrlData.publicUrl;
+    } catch (err) {
+      console.error('QR upload error', err);
+      return alert('QR upload failed: ' + (err.message || String(err)));
+    }
+  }
+
+  const { error } = await supabase.from('templates').insert([{
+    title: form.title,
+    youtube_video_id: form.youtubeId,
+    original_price: form.originalPrice ? parseFloat(form.originalPrice) : null,
+    discounted_price: form.discountedPrice ? parseFloat(form.discountedPrice) : null,
+    price: parseFloat(form.price) || 0,
+    download_link: qrUrl,
+    category: form.category,
+    carousel_tags: form.carouselTags.length > 0 ? form.carouselTags : null
+  }]);
+
+  if (!error) {
+    alert("Template added!");
+    setForm({ title: '', youtubeId: '', originalPrice: '', discountedPrice: '', price: '', qrFile: null, qrUrl: '', category: '', carouselTags: [] });
+    fetchTemplates();
+  } else {
+    alert(error.message);
+  }
+};
+
+// 3. IN THE TEMPLATE FORM JSX (inside the <form> tag, replace the price/link inputs section):
+// REPLACE THIS (around line 260):
+/*
+            <input 
+              type="number" placeholder="Price (0 for free)" className="input-field"
+              value={form.price} onChange={e => setForm({...form, price: e.target.value})}
+            />
+            <input 
+              placeholder="Download Link / VN Code URL" className="input-field"
+              value={form.link} onChange={e => setForm({...form, link: e.target.value})}
+            />
+*/
+
+// WITH THIS:
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <input 
+                type="number" placeholder="Original Price" className="input-field"
+                value={form.originalPrice} onChange={e => setForm({...form, originalPrice: e.target.value})}
+              />
+              <input 
+                type="number" placeholder="Discounted Price" className="input-field"
+                value={form.discountedPrice} onChange={e => setForm({...form, discountedPrice: e.target.value})}
+              />
+            </div>
+            <input 
+              type="number" placeholder="Price (Base/Sale Price - 0 for free)" className="input-field"
+              value={form.price} onChange={e => setForm({...form, price: e.target.value})}
+            />
+            <div>
+              <label style={{ color: 'white', marginBottom: '8px', display: 'block', fontWeight: '500' }}>Upload QR Code (replaces Download Link)</label>
+              <input 
+                type="file" 
+                accept="image/*"
+                className="input-field"
+                onChange={e => setForm({...form, qrFile: e.target.files[0]})}
+              />
+              {form.qrUrl && <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '8px' }}>Current QR: <a href={form.qrUrl} target="_blank" rel="noreferrer">View</a></p>}
+            </div>
